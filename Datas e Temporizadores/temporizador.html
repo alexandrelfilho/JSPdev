@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador de Contagem Regressiva</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 40px 60px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        h1 {
+            color: #4a5568;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .time-unit {
+            background-color: #edf2f7;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+            width: 100px;
+            text-align: center;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .time-unit:hover {
+            transform: translateY(-5px);
+        }
+
+        .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2b6cb0;
+        }
+
+        .label {
+            font-size: 0.9rem;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        .message {
+            margin-top: 30px;
+            font-size: 1.5rem;
+            color: #e53e3e;
+            font-weight: 700;
+            display: none; /* Escondido por padrão */
+        }
+
+        /* Responsividade para telas menores */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 20px;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            .time-unit {
+                width: 70px;
+                padding: 15px;
+            }
+            .value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Contagem Regressiva para 2026</h1>
+        <div class="countdown">
+            <div class="time-unit">
+                <div id="dias" class="value">00</div>
+                <div class="label">Dias</div>
+            </div>
+            <div class="time-unit">
+                <div id="horas" class="value">00</div>
+                <div class="label">Horas</div>
+            </div>
+            <div class="time-unit">
+                <div id="minutos" class="value">00</div>
+                <div class="label">Minutos</div>
+            </div>
+            <div class="time-unit">
+                <div id="segundos" class="value">00</div>
+                <div class="label">Segundos</div>
+            </div>
+        </div>
+        <div id="message" class="message">
+            Contagem Regressiva Encerrada!
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Passo 1: Definir a data futura para a contagem regressiva (no fuso horário local)
+            const dataFutura = new Date('January 1, 2026 00:00:00');
+            const mensagem = document.getElementById('message');
+            
+            // Referências aos elementos HTML
+            const diasElemento = document.getElementById('dias');
+            const horasElemento = document.getElementById('horas');
+            const minutosElemento = document.getElementById('minutos');
+            const segundosElemento = document.getElementById('segundos');
+
+            /**
+             * Calcula o tempo restante e atualiza o display do temporizador.
+             * Esta função é chamada a cada segundo.
+             */
+            function atualizarTemporizador() {
+                // Manipula o objeto Date para calcular a diferença entre a data atual e a futura
+                const dataAtual = new Date();
+                const tempoRestante = dataFutura.getTime() - dataAtual.getTime(); // Diferença em milissegundos
+
+                // Se o tempo restante for negativo, a contagem terminou
+                if (tempoRestante <= 0) {
+                    clearInterval(intervalo);
+                    diasElemento.textContent = "00";
+                    horasElemento.textContent = "00";
+                    minutosElemento.textContent = "00";
+                    segundosElemento.textContent = "00";
+                    mensagem.style.display = 'block';
+                    return;
+                }
+
+                // Calcula os dias, horas, minutos e segundos a partir dos milissegundos
+                const segundos = Math.floor(tempoRestante / 1000);
+                const minutos = Math.floor(segundos / 60);
+                const horas = Math.floor(minutos / 60);
+                const dias = Math.floor(horas / 24);
+
+                // Atualiza os elementos HTML com os valores calculados
+                diasElemento.textContent = formatarTempo(dias);
+                horasElemento.textContent = formatarTempo(horas % 24); // Pega o resto da divisão para obter horas no formato 0-23
+                minutosElemento.textContent = formatarTempo(minutos % 60); // Pega o resto para obter minutos no formato 0-59
+                segundosElemento.textContent = formatarTempo(segundos % 60); // Pega o resto para obter segundos no formato 0-59
+            }
+
+            /**
+             * Função auxiliar para formatar os valores de tempo, adicionando um zero à esquerda se necessário.
+             * @param {number} tempo - O valor de tempo (dias, horas, minutos, segundos).
+             * @returns {string} O valor formatado como string.
+             */
+            function formatarTempo(tempo) {
+                return tempo < 10 ? `0${tempo}` : tempo;
+            }
+
+            // Chamada inicial para evitar um atraso de 1 segundo
+            atualizarTemporizador();
+
+            // Passo 3: Usa setInterval para atualizar o temporizador a cada segundo (1000ms)
+            const intervalo = setInterval(atualizarTemporizador, 1000);
+        });
+    </script>
+</body>
+</html>
